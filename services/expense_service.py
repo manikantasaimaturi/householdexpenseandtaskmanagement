@@ -1,27 +1,20 @@
 from flask import jsonify
 
-from flask_jwt_extended import get_jwt_identity
-
 from config.database import db
-
 from models.expense_model import Expense
 
 
 def create_expense_service(request):
-
-    current_user = get_jwt_identity()
 
     data = request.get_json()
 
     expense = Expense(
         expense_name=data.get('expense_name'),
         amount=data.get('amount'),
-        paid_by=data.get('paid_by'),
-        user_id=current_user
+        paid_by=data.get('paid_by')
     )
 
     db.session.add(expense)
-
     db.session.commit()
 
     return jsonify({
@@ -31,9 +24,7 @@ def create_expense_service(request):
 
 def get_expense_service():
 
-    current_user = get_jwt_identity()
-
-    expenses = Expense.query.filter_by(user_id=current_user).all()
+    expenses = Expense.query.all()
 
     output = []
 
@@ -51,12 +42,7 @@ def get_expense_service():
 
 def update_expense_service(id, request):
 
-    current_user = get_jwt_identity()
-
-    expense = Expense.query.filter_by(
-        id=id,
-        user_id=current_user
-    ).first()
+    expense = Expense.query.filter_by(id=id).first()
 
     if not expense:
 
@@ -67,9 +53,7 @@ def update_expense_service(id, request):
     data = request.get_json()
 
     expense.expense_name = data.get('expense_name')
-
     expense.amount = data.get('amount')
-
     expense.paid_by = data.get('paid_by')
 
     db.session.commit()
@@ -81,12 +65,7 @@ def update_expense_service(id, request):
 
 def patch_expense_service(id, request):
 
-    current_user = get_jwt_identity()
-
-    expense = Expense.query.filter_by(
-        id=id,
-        user_id=current_user
-    ).first()
+    expense = Expense.query.filter_by(id=id).first()
 
     if not expense:
 
@@ -97,15 +76,12 @@ def patch_expense_service(id, request):
     data = request.get_json()
 
     if 'expense_name' in data:
-
         expense.expense_name = data['expense_name']
 
     if 'amount' in data:
-
         expense.amount = data['amount']
 
     if 'paid_by' in data:
-
         expense.paid_by = data['paid_by']
 
     db.session.commit()
@@ -117,12 +93,7 @@ def patch_expense_service(id, request):
 
 def delete_expense_service(id):
 
-    current_user = get_jwt_identity()
-
-    expense = Expense.query.filter_by(
-        id=id,
-        user_id=current_user
-    ).first()
+    expense = Expense.query.filter_by(id=id).first()
 
     if not expense:
 
@@ -131,7 +102,6 @@ def delete_expense_service(id):
         }), 404
 
     db.session.delete(expense)
-
     db.session.commit()
 
     return jsonify({

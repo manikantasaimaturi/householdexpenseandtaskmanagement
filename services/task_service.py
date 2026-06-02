@@ -1,25 +1,18 @@
 from flask import jsonify
 
-from flask_jwt_extended import get_jwt_identity
-
 from config.database import db
-
 from models.task_model import Task
 
 
 def create_task_service(request):
 
-    current_user = get_jwt_identity()
-
     data = request.get_json()
 
     task = Task(
-        title=data.get('title'),
-        user_id=current_user
+        title=data.get('title')
     )
 
     db.session.add(task)
-
     db.session.commit()
 
     return jsonify({
@@ -29,9 +22,7 @@ def create_task_service(request):
 
 def get_task_service():
 
-    current_user = get_jwt_identity()
-
-    tasks = Task.query.filter_by(user_id=current_user).all()
+    tasks = Task.query.all()
 
     output = []
 
@@ -48,12 +39,7 @@ def get_task_service():
 
 def update_task_service(id, request):
 
-    current_user = get_jwt_identity()
-
-    task = Task.query.filter_by(
-        id=id,
-        user_id=current_user
-    ).first()
+    task = Task.query.filter_by(id=id).first()
 
     if not task:
 
@@ -64,7 +50,6 @@ def update_task_service(id, request):
     data = request.get_json()
 
     task.title = data.get('title')
-
     task.status = data.get('status')
 
     db.session.commit()
@@ -76,12 +61,7 @@ def update_task_service(id, request):
 
 def patch_task_service(id, request):
 
-    current_user = get_jwt_identity()
-
-    task = Task.query.filter_by(
-        id=id,
-        user_id=current_user
-    ).first()
+    task = Task.query.filter_by(id=id).first()
 
     if not task:
 
@@ -92,11 +72,9 @@ def patch_task_service(id, request):
     data = request.get_json()
 
     if 'title' in data:
-
         task.title = data['title']
 
     if 'status' in data:
-
         task.status = data['status']
 
     db.session.commit()
@@ -108,12 +86,7 @@ def patch_task_service(id, request):
 
 def delete_task_service(id):
 
-    current_user = get_jwt_identity()
-
-    task = Task.query.filter_by(
-        id=id,
-        user_id=current_user
-    ).first()
+    task = Task.query.filter_by(id=id).first()
 
     if not task:
 
@@ -122,7 +95,6 @@ def delete_task_service(id):
         }), 404
 
     db.session.delete(task)
-
     db.session.commit()
 
     return jsonify({

@@ -2,8 +2,6 @@ from flask import jsonify
 
 from flask_bcrypt import Bcrypt
 
-from flask_jwt_extended import create_access_token
-
 from config.database import db
 
 from models.user_model import User
@@ -16,13 +14,11 @@ def signup_user(request):
     data = request.get_json()
 
     username = data.get('username')
-
     password = data.get('password')
 
     existing_user = User.query.filter_by(username=username).first()
 
     if existing_user:
-
         return jsonify({
             "message": "User already exists"
         }), 400
@@ -35,7 +31,6 @@ def signup_user(request):
     )
 
     db.session.add(user)
-
     db.session.commit()
 
     return jsonify({
@@ -48,23 +43,17 @@ def login_user(request):
     data = request.get_json()
 
     username = data.get('username')
-
     password = data.get('password')
 
     user = User.query.filter_by(username=username).first()
 
     if not user:
-
         return jsonify({
             "message": "Invalid username"
         }), 401
 
     if bcrypt.check_password_hash(user.password, password):
-
-        token = create_access_token(identity=str(user.id))
-
         return jsonify({
-            "token": token,
             "message": "Login successful"
         })
 
