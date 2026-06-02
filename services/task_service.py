@@ -39,24 +39,20 @@ def get_task_service():
 
 def update_task_service(id, request):
 
-    task = Task.query.filter_by(id=id).first()
-
-    if not task:
-
-        return jsonify({
-            "message": "Task not found"
-        }), 404
-
     data = request.get_json()
 
-    task.title = data.get('title')
-    task.status = data.get('status')
+    task = Task.query.get(id)
+
+    if not task:
+        return {"message": "Task not found"}, 404
+
+    task.title = data.get("title")
+    task.description = data.get("description")
+    task.status = data.get("status")
 
     db.session.commit()
 
-    return jsonify({
-        "message": "Task fully updated"
-    })
+    return {"message": "Task updated"}
 
 
 def patch_task_service(id, request):
